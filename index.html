@@ -182,6 +182,19 @@
   .p-badge.pending{background:rgba(246,181,69,.12);color:var(--warn);border:1px solid rgba(246,181,69,.4)}
   .p-badge.none{background:rgba(148,163,201,.1);color:var(--muted);border:1px solid var(--line)}
 
+  /* ---------- reviews ---------- */
+  .reviews-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+  .review-card{background:linear-gradient(160deg,var(--panel-2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:22px}
+  .review-card .stars{color:#f6b545;letter-spacing:2px;font-size:16px}
+  .review-card .rtext{color:var(--text);font-size:15px;line-height:1.6;margin:12px 0 16px;white-space:pre-wrap}
+  .review-card .rmeta{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;gap:12px}
+  .review-form{margin:28px auto 0;max-width:680px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:26px}
+  .review-form label{display:block;font-size:13.5px;color:var(--muted);margin:14px 0 6px}
+  .review-form input,.review-form textarea,.review-form select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px 14px;color:var(--text);font-size:15px;outline:none;font-family:inherit}
+  .review-form textarea{min-height:110px;resize:vertical}
+  .review-form input:focus,.review-form textarea:focus,.review-form select:focus{border-color:var(--accent)}
+  .review-form .btn{width:100%;margin-top:18px}
+
   @media (max-width:760px){ .checkout{grid-template-columns:1fr} }
 </style>
 </head>
@@ -195,6 +208,7 @@
       <a href="#tarif">Тарифы</a>
       <a href="#order">Оформить</a>
       <a href="#profile">Профиль</a>
+      <a href="#reviews">Отзывы</a>
       <a href="#faq">FAQ</a>
     </nav>
     <a class="btn btn-primary tg" href="https://t.me/Nulletbot">Начать</a>
@@ -323,6 +337,7 @@
           <div class="notice" id="payNotice" style="display:none"></div>
           <button class="btn btn-primary" id="orderBtn">Оформить и оплатить</button>
           <p class="hint">Оплата проходит на защищённой странице Lava. Данные карты не попадают на сайт и не хранятся у нас.</p>
+          <p class="hint">Не получается оплатить здесь? <a href="https://t.me/Nulletbot" style="color:var(--accent-2)">Оплатите через бота @Nulletbot</a>.</p>
         </div>
       </div>
     </div>
@@ -356,6 +371,35 @@
           </div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section id="reviews">
+    <div class="wrap">
+      <div class="center">
+        <p class="kicker">Отзывы</p>
+        <h2>Что говорят покупатели</h2>
+        <p class="sub">Отзыв может оставить только человек с активной подпиской. Проверка проходит через сервер.</p>
+      </div>
+      <div class="reviews-grid" id="reviewsList"></div>
+      <form class="review-form" id="reviewForm">
+        <div class="p-name" style="font-size:17px;margin-bottom:6px">Оставить отзыв</div>
+        <p class="hint" style="color:var(--muted);font-size:13px;margin:0 0 8px">Укажите тот же Telegram-аккаунт, через который оплачивали подписку.</p>
+        <label for="reviewTg">Telegram-аккаунт</label>
+        <input id="reviewTg" type="text" placeholder="@username">
+        <label for="reviewRating">Оценка</label>
+        <select id="reviewRating">
+          <option value="5">★★★★★ — отлично</option>
+          <option value="4">★★★★☆ — хорошо</option>
+          <option value="3">★★★☆☆ — нормально</option>
+          <option value="2">★★☆☆☆ — плохо</option>
+          <option value="1">★☆☆☆☆ — ужасно</option>
+        </select>
+        <label for="reviewText">Ваш отзыв</label>
+        <textarea id="reviewText" placeholder="Расскажите, как VPN работает: скорость, подключение, поддержка…"></textarea>
+        <button class="btn btn-primary" id="reviewSubmit" type="submit">Опубликовать отзыв</button>
+        <div class="notice" id="reviewNotice" style="display:none"></div>
+      </form>
     </div>
   </section>
 
@@ -437,7 +481,12 @@
     payNotice.style.display = "block";
     const r = await api("order", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ tg, plan: selected }) });
     btn.disabled = false;
-    if(!r.ok || !r.url){ payNotice.textContent = r.error || "Не удалось создать оплату. Попробуйте позже."; return; }
+    if(!r.ok || !r.url){
+      payNotice.innerHTML = (r.error || "Не удалось создать оплату.") +
+        ' <a href="https://t.me/Nulletbot" style="color:var(--accent-2)">Оплатить через бота @Nulletbot</a>';
+      payNotice.style.display = "block";
+      return;
+    }
     payNotice.innerHTML = "Заказ на " + r.amount + " ₽ создан." +
       '<a class="btn btn-primary" id="payNow" style="margin-left:0;margin-top:6px" href="' + r.url + '">Оплатить ' + r.amount + ' ₽</a>' +
       '<p class="hint" style="margin-top:8px">Откроется страница Lava — выберите карту или СБП. После оплаты вернитесь сюда: подписка появится в «Профиле» автоматически.</p>';
@@ -519,6 +568,111 @@
     renderProfile(null);
   });
   loadProfile();
+
+  // отзывы покупателей
+  const reviewsList = document.getElementById("reviewsList");
+  const reviewNotice = document.getElementById("reviewNotice");
+  function loadLocalReviews(){ try { return JSON.parse(localStorage.getItem("nulletvpn_reviews") || "[]"); } catch(e){ return []; } }
+  function saveLocalReviews(list){ try { localStorage.setItem("nulletvpn_reviews", JSON.stringify(list)); } catch(e){} }
+  function renderReviews(list){
+    if(!reviewsList) return;
+    reviewsList.innerHTML = "";
+    if(!list || !list.length){
+      const empty = document.createElement("div");
+      empty.className = "review-card";
+      const msg = document.createElement("div");
+      msg.className = "rtext";
+      msg.textContent = "Отзывов пока нет. Оплатите подписку и напишите первый.";
+      empty.appendChild(msg);
+      reviewsList.appendChild(empty);
+      return;
+    }
+    list.forEach(function(r){
+      const rating = Math.max(1, Math.min(5, Number(r.rating) || 5));
+      const card = document.createElement("div");
+      card.className = "review-card";
+      const stars = document.createElement("div");
+      stars.className = "stars";
+      stars.textContent = "★★★★★".slice(0, rating) + "☆☆☆☆☆".slice(0, 5 - rating);
+      const text = document.createElement("div");
+      text.className = "rtext";
+      text.textContent = r.text || "";
+      const meta = document.createElement("div");
+      meta.className = "rmeta";
+      const who = document.createElement("span");
+      who.textContent = (r.tg || "Покупатель") + (r.plan ? " · " + r.plan : "");
+      const when = document.createElement("span");
+      const d = new Date(r.ts);
+      when.textContent = isNaN(d.getTime()) ? "" : d.toLocaleDateString("ru-RU");
+      meta.appendChild(who);
+      meta.appendChild(when);
+      card.appendChild(stars);
+      card.appendChild(text);
+      card.appendChild(meta);
+      reviewsList.appendChild(card);
+    });
+  }
+  async function loadReviews(){
+    let list = null;
+    try {
+      const res = await fetch("/api/reviews", {cache:"no-store"});
+      if(res.ok){
+        const data = await res.json();
+        if(data.ok && Array.isArray(data.reviews)) list = data.reviews;
+      }
+    } catch(e){}
+    renderReviews(list || loadLocalReviews());
+  }
+  async function submitReview(ev){
+    ev.preventDefault();
+    reviewNotice.style.display = "none";
+    const tg = canonTg(document.getElementById("reviewTg").value || localStorage.getItem("privat_vpn_tg") || "");
+    const text = document.getElementById("reviewText").value.trim();
+    const rating = parseInt(document.getElementById("reviewRating").value, 10) || 5;
+    if(!tg || tg.length < 3){ reviewNotice.className = "notice"; reviewNotice.textContent = "Укажите Telegram-аккаунт."; reviewNotice.style.display = "block"; return; }
+    if(text.length < 10){ reviewNotice.className = "notice"; reviewNotice.textContent = "Напишите отзыв не короче 10 символов."; reviewNotice.style.display = "block"; return; }
+    const btn = document.getElementById("reviewSubmit");
+    btn.disabled = true;
+    reviewNotice.className = "notice";
+    reviewNotice.textContent = "Проверяем подписку…";
+    reviewNotice.style.display = "block";
+    const st = await api("status?tg=" + encodeURIComponent(tg));
+    if(!st.ok || !st.active){
+      btn.disabled = false;
+      reviewNotice.innerHTML = 'Отзыв могут оставить только покупатели с активной подпиской. <a href="https://t.me/Nulletbot" style="color:var(--accent-2)">Оплатить через бота</a>.';
+      reviewNotice.style.display = "block";
+      return;
+    }
+    try {
+      const res = await fetch("/api/reviews", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tg,text,rating,clientVerified:true})});
+      const data = await res.json();
+      if(res.ok && data.ok){
+        document.getElementById("reviewText").value = "";
+        renderReviews(data.reviews);
+        reviewNotice.className = "ok-note";
+        reviewNotice.textContent = "Спасибо! Отзыв опубликован.";
+      } else {
+        let local = loadLocalReviews().filter(function(r){ return r.tg !== tg; });
+        local.unshift({tg:tg, name:tg, rating:rating, text:text, plan:(st.sub && st.sub.label) || "", ts:new Date().toISOString()});
+        saveLocalReviews(local);
+        renderReviews(local);
+        reviewNotice.className = "notice";
+        reviewNotice.textContent = "Отзыв сохранён в этом браузере (сервер отзывов недоступен).";
+      }
+    } catch(e){
+      reviewNotice.className = "notice";
+      reviewNotice.textContent = "Не удалось отправить отзыв. Попробуйте позже.";
+    }
+    btn.disabled = false;
+    reviewNotice.style.display = "block";
+  }
+  const reviewForm = document.getElementById("reviewForm");
+  if(reviewForm) reviewForm.addEventListener("submit", submitReview);
+  try {
+    const savedTg = localStorage.getItem("privat_vpn_tg");
+    if(savedTg) document.getElementById("reviewTg").value = savedTg;
+  } catch(e){}
+  loadReviews();
 </script>
 </body>
 </html>

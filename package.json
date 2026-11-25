@@ -1,12 +1,15 @@
 {
   "name": "nulletvpn",
   "version": "1.0.0",
-  "description": "NulletVPN — сайт с оплатой, профилем и Telegram-ботом",
+  "description": "NulletVPN — сайт с оплатой, профилем и отзывами",
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js"
   },
   "engines": {
     "node": ">=18"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^9.1.1"
   }
 }
