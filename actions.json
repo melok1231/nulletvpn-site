@@ -1,0 +1,6 @@
+﻿[
+  {"type":"click","selector":".plan-opt[data-plan='1']"},
+  {"type":"fill","selector":"#tgun","value":"@testuser"},
+  {"type":"click","selector":"#orderBtn"},
+  {"type":"assert","selector":"#payNow","property":"text","equals":"Оплатить 90 ₽"}
+]

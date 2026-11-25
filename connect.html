@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NulletVPN — Подключение</title>
+<style>
+  :root{
+    --accent:#6366f1; --accent2:#8b5cf6; --bg:#0b0e1a; --card:#131830;
+    --card2:#1a2140; --text:#e9edff; --muted:#9aa3c7; --ok:#22c55e; --danger:#ef4444;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5}
+  .wrap{max-width:640px;margin:0 auto;padding:28px 18px 60px}
+  .logo{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:800;letter-spacing:.3px;margin-bottom:6px}
+  .logo b{color:var(--accent)}
+  .sub{color:var(--muted);font-size:14px;margin-bottom:24px}
+  .card{background:var(--card);border:1px solid #232a4d;border-radius:16px;padding:20px;margin-bottom:16px}
+  .card h2{font-size:16px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .card h2 .n{background:var(--accent);color:#fff;width:24px;height:24px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;flex:0 0 24px}
+  .apps{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .app{background:var(--card2);border:1px solid #2b3357;border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:.15s}
+  .app:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .app .ico{width:56px;height:56px;margin:0 auto 10px;border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+  .app b{display:block;font-size:15px;margin-bottom:4px}
+  .app span{color:var(--muted);font-size:12px}
+  .app.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+  .btn{display:block;width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;transition:.15s}
+  .btn:hover{filter:brightness(1.1)}
+  .btn.copy{background:var(--card2);border:1px solid #2b3357}
+  .steps{margin-top:6px}
+  .steps li{margin:0 0 8px 20px;color:var(--muted);font-size:14px}
+  .steps b{color:var(--text)}
+  .keybox{background:#0b0e1a;border:1px solid #2b3357;border-radius:10px;padding:10px 12px;font-size:12px;font-family:monospace;color:var(--muted);word-break:break-all;margin-bottom:10px;min-height:38px;display:none}
+  .hint{color:var(--muted);font-size:12px;margin-top:8px;text-align:center}
+  .ok{color:var(--ok);font-size:13px;margin-top:10px;text-align:center;display:none}
+  .field{width:100%;background:var(--card2);border:1px solid #2b3357;border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;margin-top:10px}
+  .field:focus{outline:none;border-color:var(--accent)}
+  .devs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+  .dev{background:var(--card2);border:1px solid #2b3357;border-radius:10px;padding:12px;text-align:center;font-size:13px;cursor:pointer;transition:.15s}
+  .dev span{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+  .dev img{width:22px;vertical-align:-4px;margin-right:6px;filter:invert(1) opacity(.85)}
+  .dev.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+  .footer{text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
+  .footer a{color:var(--accent);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">Nullet<b>VPN</b></div>
+  <div class="sub">Подключение и настройка</div>
+
+  <!-- Шаг 1 -->
+  <div class="card">
+    <h2><span class="n">1</span> Выбери приложение</h2>
+    <div class="apps" id="apps">
+      <div class="app sel" data-app="happ">
+        <div class="ico" style="background:linear-gradient(135deg,#2563eb,#1e40af)">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M4 20h16M9 20V9.5L3 13V10l6-3.5V4h2v3l6 2.5v3l-6-3.5V20" fill="#fff"/></svg>
+        </div>
+        <b>Happ</b><span>iOS · Android · Windows</span>
+      </div>
+      <div class="app" data-app="incy">
+        <div class="ico" style="background:linear-gradient(135deg,#f43f5e,#be123c)">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><rect x="5" y="3" width="14" height="18" rx="3" stroke="#fff" stroke-width="2"/><path d="M9 12h6M9 8h6M9 16h4" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <b>INCY</b><span>iOS · Android · Mac · Windows</span>
+      </div>
+    </div>
+    <p class="hint">Выбери приложение — увидишь шаги и скачивание</p>
+  </div>
+
+  <!-- Шаг 2 -->
+  <div class="card">
+    <h2><span class="n">2</span> Выбери устройство</h2>
+    <div class="devs" id="devs">
+      <div class="dev sel" data-dev="phone">📱 Телефон</div>
+      <div class="dev" data-dev="pc">🖥️ Компьютер</div>
+      <div class="dev" data-dev="tv">📺 ТВ</div>
+      <div class="dev" data-dev="other">🔗 Другое</div>
+    </div>
+    <input class="field" id="uid" type="text" inputmode="numeric" placeholder="Твой номер подписки (ID) — например 6120448">
+    <p class="hint">ID нужен для активации подписки на выбранном устройстве</p>
+  </div>
+
+  <!-- Шаг 3 -->
+  <div class="card">
+    <h2><span class="n">3</span> Скопируй ссылку</h2>
+    <div class="keybox" id="keybox"></div>
+    <button class="btn copy" id="copyBtn">📋 Копировать ссылку подписки</button>
+    <div class="ok" id="copied">✅ Ссылка скопирована</div>
+    <p class="hint">Она всегда под рукой и в твоём личном кабинете</p>
+  </div>
+
+  <!-- Шаг 4 -->
+  <div class="card">
+    <h2><span class="n">4</span> Подключись</h2>
+    <ol class="steps" id="steps"></ol>
+    <a class="btn" id="downloadBtn" target="_blank" rel="noopener">⬇ Скачать Happ</a>
+  </div>
+
+  <div class="footer">
+    NulletVPN © 2026 · <a href="https://nulletvpn.netlify.app/">Главная</a> · Поддержка: <a href="https://t.me/Nulletbot">@Nulletbot</a>
+  </div>
+</div>
+
+<script>
+  // === ВСТАВЬ СЮДА СВОЮ ССЫЛКУ ПОДПИСКИ ===
+  const SUB_URL = ""; // например "https://s-25999.de34.h1clayd.shop/sub/359bedf2-..."
+  // ==========================================
+
+  const apps = {
+    happ: {
+      name:"Happ",
+      download:"https://happ.info",
+      steps:["Скачай и установи Happ","Открой приложение и нажми «+»","Выбери «Импорт по ссылке»","Вставь скопированную ссылку","Нажми на профиль — и ты в сети ✅"]
+    },
+    incy: {
+      name:"INCY",
+      download:"https://incy.host",
+      steps:["Скачай и установи INCY","Открой приложение и нажми «+»","Выбери «Добавить по ссылке»","Вставь скопированную ссылку","Нажми на профиль — и ты в сети ✅"]
+    }
+  };
+  let current = "happ";
+
+  function render(){
+    const app = apps[current];
+    document.querySelectorAll(".app").forEach(a=>a.classList.toggle("sel", a.dataset.app===current));
+    document.getElementById("downloadBtn").textContent = "⬇ Скачать " + app.name;
+    document.getElementById("downloadBtn").href = app.download;
+    document.getElementById("steps").innerHTML = app.steps.map(s=>"<li>"+s+"</li>").join("");
+    if(SUB_URL) document.getElementById("keybox").style.display="block";
+  }
+
+  document.getElementById("apps").addEventListener("click", e=>{
+    const c=e.target.closest(".app"); if(c){ current=c.dataset.app; render(); }
+  });
+
+  document.getElementById("devs").addEventListener("click", e=>{
+    const c=e.target.closest(".dev"); if(c){
+      document.querySelectorAll(".dev").forEach(d=>d.classList.remove("sel"));
+      c.classList.add("sel");
+    }
+  });
+
+  document.getElementById("copyBtn").addEventListener("click", async ()=>{
+    if(!SUB_URL){
+      document.getElementById("keybox").textContent = "Ссылка подписки ещё не добавлена. Обратитесь в поддержку.";
+      document.getElementById("keybox").style.display="block";
+      return;
+    }
+    try{ await navigator.clipboard.writeText(SUB_URL); }
+    catch(e){ const t=document.createElement("textarea"); t.value=SUB_URL; document.body.appendChild(t); t.select(); document.execCommand("copy"); t.remove(); }
+    document.getElementById("keybox").textContent = SUB_URL;
+    document.getElementById("keybox").style.display="block";
+    document.getElementById("copied").style.display="block";
+    setTimeout(()=>document.getElementById("copied").style.display="none", 2000);
+  });
+
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "nulletvpn",
+  "version": "1.0.0",
+  "description": "NulletVPN — сайт с оплатой, профилем и Telegram-ботом",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
