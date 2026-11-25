@@ -333,6 +333,9 @@
           <h3>Ваши данные</h3>
           <label for="tgun">Telegram-аккаунт (для активации)</label>
           <input type="text" id="tgun" placeholder="@username или номер телефона" autocomplete="off">
+          <label for="tgid">ID из бота (необязательно)</label>
+          <input type="text" id="tgid" placeholder="например 123456789" autocomplete="off">
+          <p class="hint">Узнайте ID командой <b>/profile</b> в боте — тогда подписка и ключ появятся в личном кабинете бота.</p>
           <div class="notice" id="orderNotice" style="display:none"></div>
           <div class="notice" id="payNotice" style="display:none"></div>
           <button class="btn btn-primary" id="orderBtn">Оформить и оплатить</button>
@@ -444,6 +447,8 @@
     "3":  {label:"На 3 месяца", days:90,  price:220, dev:"без лимита"}
   };
   let selected = "3";
+  let forceExtend = false;
+  let currentSub = null;
 
   // выбор тарифа
   document.querySelectorAll(".plan-opt").forEach(opt=>{
@@ -451,6 +456,7 @@
       document.querySelectorAll(".plan-opt").forEach(o=>o.classList.remove("sel"));
       opt.classList.add("sel");
       selected = opt.dataset.plan;
+      forceExtend = false;
     });
   });
 
@@ -470,16 +476,38 @@
   const orderNotice = document.getElementById("orderNotice");
   const payNotice = document.getElementById("payNotice");
 
-  document.getElementById("orderBtn").addEventListener("click", async ()=>{
+  function getTgId(){
+    const raw = (document.getElementById("tgid").value || "").trim();
+    return /^\d+$/.test(raw) ? raw : "";
+  }
+  function statusQuery(tg, tgId){
+    const qs = new URLSearchParams();
+    if(tg) qs.set("tg", tg);
+    if(tgId) qs.set("tgId", tgId);
+    return qs.toString();
+  }
+  async function doOrder(force){
     const tg = canonTg(document.getElementById("tgun").value);
+    const tgId = getTgId();
     orderNotice.style.display = "none";
     payNotice.style.display = "none";
-    if(!tg){ orderNotice.textContent = "Укажите ваш Telegram-аккаунт (например @username)."; orderNotice.style.display = "block"; return; }
+    if(!tg && !tgId){ orderNotice.textContent = "Укажите Telegram-аккаунт или ID из бота."; orderNotice.style.display = "block"; return; }
     const btn = document.getElementById("orderBtn");
     btn.disabled = true;
+    if(!force){
+      const st = await api("status?" + statusQuery(tg, tgId));
+      if(st.ok && st.active && st.sub && String(st.sub.plan) === String(selected)){
+        btn.disabled = false;
+        payNotice.innerHTML = "У вас уже активен выбранный тариф. Повторная покупка того же тарифа недоступна — продлите его или выберите 2 либо 3 месяца." +
+          '<button class="btn btn-ghost" id="extendNow" style="margin-top:10px">Продлить тот же тариф</button>';
+        payNotice.style.display = "block";
+        document.getElementById("extendNow").addEventListener("click", ()=> doOrder(true));
+        return;
+      }
+    }
     payNotice.textContent = "Создаём оплату…";
     payNotice.style.display = "block";
-    const r = await api("order", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ tg, plan: selected }) });
+    const r = await api("order", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ tg: tg || "@" + tgId, tgId, plan: selected }) });
     btn.disabled = false;
     if(!r.ok || !r.url){
       payNotice.innerHTML = (r.error || "Не удалось создать оплату.") +
@@ -489,9 +517,14 @@
     }
     payNotice.innerHTML = "Заказ на " + r.amount + " ₽ создан." +
       '<a class="btn btn-primary" id="payNow" style="margin-left:0;margin-top:6px" href="' + r.url + '">Оплатить ' + r.amount + ' ₽</a>' +
-      '<p class="hint" style="margin-top:8px">Откроется страница Lava — выберите карту или СБП. После оплаты вернитесь сюда: подписка появится в «Профиле» автоматически.</p>';
-    try { localStorage.setItem("privat_vpn_tg", tg); } catch(e){}
-  });
+      '<p class="hint" style="margin-top:8px">Откроется страница Lava — выберите карту или СБП. После оплаты вернитесь сюда: подписка появится в «Профиле» и в боте автоматически.</p>';
+    try {
+      if(tg) localStorage.setItem("privat_vpn_tg", tg);
+      if(tgId) localStorage.setItem("privat_vpn_tg_id", tgId);
+    } catch(e){}
+    forceExtend = false;
+  }
+  document.getElementById("orderBtn").addEventListener("click", ()=> doOrder(forceExtend));
 
   document.querySelectorAll("[data-buy]").forEach(el=>{
     el.addEventListener("click", ()=>{
@@ -557,14 +590,22 @@
     }
   }
   async function loadProfile(){
-    const saved = localStorage.getItem("privat_vpn_tg");
-    if(!saved){ renderProfile(null); return; }
-    const r = await api("status?tg=" + encodeURIComponent(saved));
-    renderProfile(r.ok ? r : null);
+    const saved = localStorage.getItem("privat_vpn_tg") || "";
+    const savedId = localStorage.getItem("privat_vpn_tg_id") || "";
+    if(savedId) document.getElementById("tgid").value = savedId;
+    if(!saved && !savedId){ renderProfile(null); return; }
+    const r = await api("status?" + statusQuery(saved, savedId));
+    currentSub = r.ok ? r : null;
+    renderProfile(currentSub);
   }
-  document.getElementById("extendBtn").addEventListener("click", ()=> window.location.href = "#order");
+  document.getElementById("extendBtn").addEventListener("click", ()=>{
+    forceExtend = true;
+    window.location.href = "#order";
+  });
   document.getElementById("logoutBtn").addEventListener("click", ()=>{
-    try { localStorage.removeItem("privat_vpn_tg"); } catch(e){}
+    try { localStorage.removeItem("privat_vpn_tg"); localStorage.removeItem("privat_vpn_tg_id"); } catch(e){}
+    currentSub = null;
+    forceExtend = false;
     renderProfile(null);
   });
   loadProfile();
@@ -636,7 +677,7 @@
     reviewNotice.className = "notice";
     reviewNotice.textContent = "Проверяем подписку…";
     reviewNotice.style.display = "block";
-    const st = await api("status?tg=" + encodeURIComponent(tg));
+    const st = await api("status?" + statusQuery(tg, getTgId()));
     if(!st.ok || !st.active){
       btn.disabled = false;
       reviewNotice.innerHTML = 'Отзыв могут оставить только покупатели с активной подпиской. <a href="https://t.me/Nulletbot" style="color:var(--accent-2)">Оплатить через бота</a>.';
