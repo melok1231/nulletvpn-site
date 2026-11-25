@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -349,6 +349,7 @@
           </div>
           <div class="p-bar"><i id="pBar" style="width:0%"></i></div>
           <div class="p-lbl"><span>Срок действия</span><span id="pUntil">—</span></div>
+          <div class="notice" id="pKey" style="display:none"></div>
           <div class="p-actions">
             <button class="btn btn-ghost" id="extendBtn">Продлить</button>
             <button class="btn btn-ghost" id="logoutBtn">Выйти</button>
@@ -363,7 +364,7 @@
       <p class="kicker">FAQ</p>
       <h2>Частые вопросы</h2>
       <div class="faq">
-        <details class="reveal"><summary>Как оформить подписку?<span class="chev">▾</span></summary><div class="ans">Откройте нашего Telegram-бота, нажмите «Оформить», выберите тариф и следуйте подсказкам. Всё занимает меньше минуты.</div></details>
+        <details class="reveal"><summary>Как оформить подписку?<span class="chev">▾</span></summary><div class="ans">Выберите тариф, укажите Telegram-аккаунт и нажмите «Оформить и оплатить». Оплата пройдёт на странице Lava картой или через СБП, подписка активируется автоматически.</div></details>
         <details class="reveal"><summary>Как проверить оставшиеся дни?<span class="chev">▾</span></summary><div class="ans">Укажите свой Telegram-аккаунт в разделе «Оформление» — в «Профиле» покажем тариф, оставшиеся дни и ссылку на подписку. Или отправьте /status боту.</div></details>
         <details class="reveal"><summary>Что если подписка закончилась?<span class="chev">▾</span></summary><div class="ans">Ничего страшного: продлите её в боте всё той же командой, подключение не нужно настраивать заново.</div></details>
         <details class="reveal"><summary>На скольких устройствах работает?<span class="chev">▾</span></summary><div class="ans">Зависит от тарифа — от 2 устройств на месячном плане до безлимита на годовом. Узнайте детали в боте.</div></details>
@@ -417,8 +418,9 @@
     if(s.startsWith("@")) s = s.slice(1);
     return "@" + s.replace(/[^a-z0-9_]/g,"");
   }
+  const API_BASE = "https://nullet-vpn-bot.onrender.com";
   function api(path, opts){
-    return fetch("/api/"+path, opts).then(r=>r.json()).catch(()=>({ok:false,error:"Сервер недоступен"}));
+    return fetch(API_BASE + "/site/" + path, opts).then(r=>r.json()).catch(()=>({ok:false,error:"Сервер недоступен"}));
   }
 
   const orderNotice = document.getElementById("orderNotice");
