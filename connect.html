@@ -15,19 +15,27 @@
   .logo{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:800;letter-spacing:.3px;margin-bottom:6px}
   .logo b{color:var(--accent)}
   .sub{color:var(--muted);font-size:14px;margin-bottom:24px}
-  .card{background:var(--card);border:1px solid #232a4d;border-radius:16px;padding:20px;margin-bottom:16px}
+  .card{background:var(--card);border:1px solid #232a4d;border-radius:16px;padding:20px;margin-bottom:16px;transition:border-color .25s ease,box-shadow .25s ease,transform .25s ease}
+  .card:hover{border-color:#3b4a85;box-shadow:0 14px 40px rgba(20,30,90,.45);transform:translateY(-2px)}
   .card h2{font-size:16px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
   .card h2 .n{background:var(--accent);color:#fff;width:24px;height:24px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;flex:0 0 24px}
   .apps{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .app{background:var(--card2);border:1px solid #2b3357;border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:.15s}
-  .app:hover{border-color:var(--accent);transform:translateY(-2px)}
-  .app .ico{width:56px;height:56px;margin:0 auto 10px;border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+  .app{background:var(--card2);border:1px solid #2b3357;border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:.15s;position:relative;overflow:hidden}
+  .app:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 12px 30px rgba(60,80,220,.35)}
+  .app::before{content:"";position:absolute;left:var(--mx,50%);top:var(--my,50%);width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,.25),transparent 70%);transform:translate(-50%,-50%) scale(0);opacity:0;transition:transform .45s ease,opacity .35s ease;pointer-events:none}
+  .app:hover::before{transform:translate(-50%,-50%) scale(2.6);opacity:1}
+  .app .ico{width:56px;height:56px;margin:0 auto 10px;border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35);transition:transform .3s ease}
+  .app:hover .ico{transform:scale(1.12) rotate(-4deg)}
   .app b{display:block;font-size:15px;margin-bottom:4px}
   .app span{color:var(--muted);font-size:12px}
   .app.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
-  .btn{display:block;width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;transition:.15s}
-  .btn:hover{filter:brightness(1.1)}
-  .btn.copy{background:var(--card2);border:1px solid #2b3357}
+  .btn{display:block;width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;transition:.15s;position:relative;overflow:hidden}
+  .btn::before{content:"";position:absolute;left:var(--mx,50%);top:var(--my,50%);width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,.28);transform:translate(-50%,-50%) scale(0);opacity:0;transition:transform .4s ease,opacity .3s ease;pointer-events:none}
+  .btn:hover::before{transform:translate(-50%,-50%) scale(10);opacity:1}
+  .btn:hover{filter:brightness(1.12);transform:translateY(-1px);box-shadow:0 12px 28px rgba(60,80,220,.4)}
+  .btn:active{transform:scale(.97)}
+  .btn.copy{background:var(--card2);border:1px solid #2b3357;transition:.15s}
+  .btn.copy:hover{filter:none;border-color:var(--accent);box-shadow:0 10px 24px rgba(60,80,220,.3)}
   .steps{margin-top:6px}
   .steps li{margin:0 0 8px 20px;color:var(--muted);font-size:14px}
   .steps b{color:var(--text)}
@@ -37,12 +45,19 @@
   .field{width:100%;background:var(--card2);border:1px solid #2b3357;border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;margin-top:10px}
   .field:focus{outline:none;border-color:var(--accent)}
   .devs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
-  .dev{background:var(--card2);border:1px solid #2b3357;border-radius:10px;padding:12px;text-align:center;font-size:13px;cursor:pointer;transition:.15s}
+  .dev{background:var(--card2);border:1px solid #2b3357;border-radius:10px;padding:12px;text-align:center;font-size:13px;cursor:pointer;transition:.15s;position:relative;overflow:hidden}
+  .dev::before{content:"";position:absolute;left:var(--mx,50%);top:var(--my,50%);width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,.22),transparent 70%);transform:translate(-50%,-50%) scale(0);opacity:0;transition:transform .4s ease,opacity .3s ease;pointer-events:none}
+  .dev:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 8px 22px rgba(60,80,220,.3)}
+  .dev:hover::before{transform:translate(-50%,-50%) scale(2.6);opacity:1}
   .dev span{display:block;color:var(--muted);font-size:11px;margin-top:2px}
   .dev img{width:22px;vertical-align:-4px;margin-right:6px;filter:invert(1) opacity(.85)}
   .dev.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
   .footer{text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
   .footer a{color:var(--accent);text-decoration:none}
+  @media (prefers-reduced-motion:reduce){
+    .app:hover,.dev:hover,.btn:hover,.card:hover{transform:none;box-shadow:none}
+    .app::before,.dev::before,.btn::before{display:none}
+  }
 </style>
 </head>
 <body>
@@ -158,6 +173,19 @@
   });
 
   render();
+
+  // === Эффект пузыря: свечение следит за курсором внутри карточек ===
+  (function(){
+    const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(reduceMotion) return;
+    document.querySelectorAll(".app,.dev,.btn").forEach(function(el){
+      el.addEventListener("pointermove", function(e){
+        const r = el.getBoundingClientRect();
+        el.style.setProperty("--mx", (e.clientX - r.left) + "px");
+        el.style.setProperty("--my", (e.clientY - r.top) + "px");
+      });
+    });
+  })();
 </script>
 </body>
 </html>
